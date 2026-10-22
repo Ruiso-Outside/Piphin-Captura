@@ -12,7 +12,7 @@ const DEFAULTS = {
   shotsDir: path.join(os.homedir(), "Pictures", "Piphin Capturas"),
   videosDir: path.join(os.homedir(), "Videos", "Piphin Capturas"),
   hotkeys: { region: "PrintScreen", screen: "Ctrl+PrintScreen", record: "Alt+F9" },
-  afterShot: { copy: true, save: true, notify: true, edit: false },
+  afterShot: { save: true, notify: true, edit: false }, // o print sempre é copiado (para colar na hora com Ctrl+V)
   rec: { source: "screen", sourceId: "", systemAudio: true, mic: false, micId: "", fps: 60, quality: "high", height: 0, countdown: true },
 };
 const merge = (a, b) => { const o = { ...a }; for (const [k, v] of Object.entries(b || {})) o[k] = v && typeof v === "object" && !Array.isArray(v) && a && typeof a[k] === "object" ? merge(a[k], v) : v; return o; };
@@ -56,7 +56,8 @@ exports.activate = (ctx) => {
   // print pronto (PNG em base64): copia, salva, avisa e/ou abre o editor, conforme as preferências
   async function finishShot(b64, { w, h, how }) {
     const a = prefs.afterShot;
-    if (a.copy) await ctx.host.writeClipboardImage(b64).catch((e) => ctx.log("copiar", e.message));
+    let copied = true;
+    await ctx.host.writeClipboardImage(b64).catch((e) => { copied = false; ctx.log("copiar", e.message); });
     let item = null;
     // sempre guarda (mesmo com "salvar" desligado vai para a pasta temporária, para o editor e a galeria)
     const dir = a.save ? prefs.shotsDir : TMP;
@@ -67,7 +68,7 @@ exports.activate = (ctx) => {
     if (a.save) { items.unshift(item); items = items.slice(0, 500); saveList(); }
     ctx.emit("shot", { ...item, src: url(file) });
     if (a.edit) { lastForEditor = item.id; tmpItems.set(item.id, item); await ctx.host.focus().catch(() => {}); ctx.emit("edit", { ...item, src: url(file) }); }
-    else if (a.notify) ctx.host.notify("Print " + (a.copy ? "copiado" : "pronto"), `${w}×${h}${a.save ? " · salvo em " + path.basename(prefs.shotsDir) : ""} · clique para editar`).catch(() => {});
+    else if (a.notify || !copied) ctx.host.notify(copied ? "Print copiado: é só colar (Ctrl+V)" : "Print salvo, mas não deu para copiar", `${w}×${h}${a.save ? " · salvo em " + path.basename(prefs.shotsDir) : ""} · clique para editar`).catch(() => {});
     lastForEditor = item.id; tmpItems.set(item.id, item);
     return item;
   }
@@ -238,7 +239,7 @@ exports.activate = (ctx) => {
   ctx.handle("tool:take_screenshot", async () => {
     const it = await shotScreen();
     if (!it) throw new Error("Já tem um print em andamento");
-    return { file: it.file, width: it.w, height: it.h, copied: prefs.afterShot.copy, note: "Print da tela onde está o mouse." };
+    return { file: it.file, width: it.w, height: it.h, copied: true, note: "Print da tela onde está o mouse, já copiado para colar." };
   });
   ctx.handle("tool:start_recording", async (a = {}) => {
     if (rec) return { recording: true, file: rec.file, note: "Já estava gravando." };

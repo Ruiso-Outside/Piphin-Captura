@@ -64,7 +64,7 @@ async function start(o) {
     await output.start();
     R.t0 = performance.now();
     piphin.invoke("rec-started");
-    msg(`${h}p · ${fps}`);
+    msg(`${h}p`);
     // miniatura para a galeria (um quadro depois de 1 s)
     setTimeout(() => grabThumb(display), 1000);
   } catch (e) {

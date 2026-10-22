@@ -66,7 +66,7 @@ function home() {
       <button class="act" data-do="window"><span class="ic"><i class="i i-app-window"></i></span><b>Print de uma janela</b><span>Escolha o programa</span><kbd class="dim">pela lista</kbd></button>
       <button class="act rec ${S.rec.on ? "on" : ""}" data-do="record"><span class="ic"><i class="i i-${S.rec.on ? "square" : "video"}"></i></span><b>${S.rec.on ? "Parar a gravação" : "Gravar a tela"}</b><span>${S.rec.on ? "Salva em MP4" : "Vídeo MP4 com som"}</span>${k("record")}</button>
     </section>
-    <p class="tip"><i class="i i-keyboard"></i>Os atalhos funcionam de qualquer lugar, até dentro de jogos. O print vai ${S.prefs.afterShot.copy ? "para a área de transferência (é só colar com <kbd>Ctrl</kbd>+<kbd>V</kbd>)" : "para a pasta"}${S.prefs.afterShot.save ? " e fica salvo na Galeria" : ""}.</p>
+    <p class="tip"><i class="i i-keyboard"></i>Os atalhos funcionam de qualquer lugar, até dentro de jogos. O print já vai copiado: é só colar com <kbd>Ctrl</kbd>+<kbd>V</kbd>${S.prefs.afterShot.save ? " (e fica salvo na Galeria)" : ""}.</p>
     <section class="panel">
       <div class="ph"><h3><i class="i i-video"></i> Gravação</h3><span class="faint">MP4 (H.264), usa a placa de vídeo para não pesar</span></div>
       <div class="opts">
@@ -105,7 +105,7 @@ function settings() {
   return `<div class="wrap narrow"><h2>Ajustes</h2>
     <h3 class="sub">Atalhos</h3><div class="p-settings">${hk("region", "Print de uma área")}${hk("screen", "Print da tela inteira")}${hk("record", "Começar / parar a gravação")}</div>
     <p class="faint">Clique no atalho e aperte as teclas novas. Se o <kbd>PrtSc</kbd> abrir a Ferramenta de Captura do Windows, desligue em Configurações do Windows › Acessibilidade › Teclado › “Usar a tecla Print Screen para abrir a captura de tela”.</p>
-    <h3 class="sub">Depois do print</h3><div class="p-settings">${sw("copy", "Copiar", "Pronto para colar com Ctrl+V no WhatsApp, Discord, Word...")}${sw("save", "Salvar na pasta", "Fica na Galeria e na pasta dos prints")}${sw("edit", "Abrir o editor", "Para marcar com setas, texto e esconder informações")}${sw("notify", "Avisar", "Uma notificação curta do Windows")}</div>
+    <h3 class="sub">Depois do print</h3><p class="faint">O print sempre vai copiado, pronto para colar com Ctrl+V no WhatsApp, Discord, Word...</p><div class="p-settings">${sw("save", "Salvar na pasta", "Fica na Galeria e na pasta dos prints")}${sw("edit", "Abrir o editor", "Para marcar com setas, texto e esconder informações")}${sw("notify", "Avisar", "Uma notificação curta do Windows")}</div>
     <h3 class="sub">Pastas</h3><div class="p-settings">
       <div class="set"><div><h4>Prints</h4><p class="path">${esc(p.shotsDir)}</p></div><button class="btn sm" data-do="choose-shot">Mudar</button></div>
       <div class="set"><div><h4>Gravações</h4><p class="path">${esc(p.videosDir)}</p></div><button class="btn sm" data-do="choose-video">Mudar</button></div></div>
@@ -160,7 +160,7 @@ async function printWindow(id) {
     const c = document.createElement("canvas"); c.width = v.videoWidth; c.height = v.videoHeight; c.getContext("2d").drawImage(v, 0, 0);
     const blob = await new Promise((r) => c.toBlob(r, "image/png"));
     await call("save-image", new Uint8Array(await blob.arrayBuffer()), { w: c.width, h: c.height, how: "janela" });
-    toast(S.prefs.afterShot.copy ? "Print da janela copiado" : "Print da janela salvo", "ok");
+    toast("Print da janela copiado: é só colar (Ctrl+V)", "ok");
   } finally { stream.getTracks().forEach((t) => t.stop()); }
 }
 function moreMenu(it) {
@@ -191,7 +191,7 @@ function openEditor(it) {
   Editor.open(it, {
     onSaved: guard(async (what, r, item) => {
       if (what === "copy") { await call("save-image", r.bytes, { copyOnly: true }); toast("Copiado: é só colar com Ctrl+V", "ok"); }
-      else if (what === "save") { await call("save-image", r.bytes, { replaceId: item.id, w: r.w, h: r.h, copy: S.prefs.afterShot.copy }); toast("Print salvo" + (S.prefs.afterShot.copy ? " e copiado" : ""), "ok"); }
+      else if (what === "save") { await call("save-image", r.bytes, { replaceId: item.id, w: r.w, h: r.h, copy: true }); toast("Print salvo e copiado", "ok"); }
       else if (what === "saveas") { const s = await call("save-image", r.bytes, { replaceId: item.id, w: r.w, h: r.h }); const f = await call("save-as", s.id); if (f) toast("Salvo", "ok"); }
     }),
     onClosed: (what) => (what === "ask" ? confirmBox("Fechar sem salvar?", "As marcações que você fez vão sumir.", "Fechar", true) : true),

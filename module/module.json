@@ -7,7 +7,7 @@
   "ui": "web/index.html",
   "icon": "icons/captura.png",
   "accent": "#06b6d4",
-  "minHub": "1.6.0",
+  "minHub": "1.6.1",
   "permissions": ["screenCapture"],
   "tools": [
     {
