@@ -28,6 +28,11 @@ Print de tela prático, com editor, e gravador de tela em MP4 com som. Módulo d
 - **Galeria**: prints e gravações, para editar, assistir, copiar, mostrar na pasta, salvar como e apagar.
 - **IA**: com o Piphin LLM, a IA tira um print, começa e para a gravação (com a sua confirmação) e lista as capturas.
 
+## Mídia do Hub
+Com o Piphin Hub 1.7.0 ou mais novo:
+- Prints e gravações entram na **Mídia** do Hub. Se um jogo estiver aberto (pelo Piphin Jogos), levam o nome dele, e o Piphin Jogos mostra os prints e gravações na página do jogo.
+- No menu de cada captura: **Editar no Piphin Foto** (prints) e **Editar no Piphin Vídeo** (gravações).
+
 ## Estrutura
 
 `module/backend.js` (atalhos, arquivos, prints e a gravação no disco).

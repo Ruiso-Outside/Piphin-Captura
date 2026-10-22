@@ -1,6 +1,8 @@
 // Piphin Captura como módulo do Piphin Hub: print de tela (área, tela inteira, janela) com editor e gravador de tela com som.
 // Prints: o Hub tira o PNG do monitor e uma janela por cima deixa escolher a área. Gravação: a barrinha do gravador
 // (janela que não aparece no vídeo) captura a tela pelo getDisplayMedia, codifica em H.264/AAC e manda os pedaços para cá.
+// Com o Hub 1.7.0+: prints e gravações entram na Mídia do Hub (com o jogo que estava aberto, pelo Piphin Jogos)
+// e abrem no Piphin Foto ou no Piphin Vídeo.
 const fs = require("fs");
 const os = require("os");
 const path = require("path");
@@ -24,7 +26,51 @@ exports.activate = (ctx) => {
   let prefs = merge(DEFAULTS, readJson(PREFS, {}));
   const savePrefs = () => fs.writeFileSync(PREFS, JSON.stringify(prefs, null, 1));
   let items = readJson(LIST, []); // { id, type: "shot"|"video", file, at, w, h, seconds, size, thumb }
-  const saveList = () => { fs.writeFileSync(LIST, JSON.stringify(items)); ctx.emit("items", publicItems()); };
+  const saveList = () => { fs.writeFileSync(LIST, JSON.stringify(items)); ctx.emit("items", publicItems()); syncHub(); };
+
+  // ---------------------------------------------------------------- Mídia do Hub (no Hub antigo, ctx.host.library não existe)
+  const hubLib = ctx.host.library || null;
+  let syncTimer = 0;
+  function syncHub() {
+    if (!hubLib) return;
+    clearTimeout(syncTimer);
+    syncTimer = setTimeout(() => {
+      hubLib.sync(items.filter((i) => !i.temp && fs.existsSync(i.file)).map((i) => ({
+        path: i.file, kind: i.type === "video" ? "video" : "image", sub: i.type === "video" ? "Gravação de tela" : "Print",
+        width: i.w, height: i.h, duration: i.seconds, game: i.game, tags: i.game ? ["jogo"] : undefined, addedAt: i.at }))).catch((e) => ctx.log("mídia", e));
+    }, 400);
+  }
+  // jogo aberto agora (Piphin Jogos, pelas ferramentas do Hub): o print ou a gravação leva o nome
+  let playing = { at: 0, name: null };
+  function callTool(name, args = {}) {
+    const u = process.env.PIPHIN_TOOLS_URL;
+    if (!u) return Promise.resolve(null);
+    const body = JSON.stringify({ jsonrpc: "2.0", id: Date.now(), method: "tools/call", params: { name, arguments: args } }), url = new URL(u);
+    return new Promise((resolve) => {
+      const req = http.request({ host: url.hostname, port: url.port, path: url.pathname, method: "POST", timeout: 4000, headers: { "Content-Type": "application/json", "Content-Length": Buffer.byteLength(body) } }, (res) => {
+        let t = ""; res.setEncoding("utf8"); res.on("data", (d) => (t += d));
+        res.on("end", () => { try { const j = JSON.parse(t); resolve(j.error || j.result.isError ? null : JSON.parse(j.result.content[0].text)); } catch { resolve(null); } });
+      });
+      req.on("timeout", () => req.destroy());
+      req.on("error", () => resolve(null));
+      req.end(body);
+    });
+  }
+  async function gameNow() {
+    if (Date.now() - playing.at < 20000) return playing.name;
+    const r = await callTool("jogos_now_playing");
+    const g = r && Array.isArray(r.playing) && r.playing[0];
+    playing = { at: Date.now(), name: g ? g.name : null };
+    return playing.name;
+  }
+  // marca o item com o jogo sem atrasar o print
+  const tagGame = (item) => gameNow().then((name) => { if (name && item) { item.game = name; if (items.includes(item)) saveList(); } }).catch(() => {});
+  ctx.handle("openers", (kind) => (ctx.host.openers ? ctx.host.openers(kind) : []));
+  ctx.handle("open-in", (target, id) => {
+    const it = items.find((x) => x.id === id) || tmpItems.get(id);
+    if (!it) throw new Error("Captura não encontrada");
+    return ctx.host.openIn(target, { path: it.file });
+  });
   fs.mkdirSync(TMP, { recursive: true });
   for (const f of fs.readdirSync(TMP)) try { fs.rmSync(path.join(TMP, f), { force: true }); } catch { /* em uso */ }
 
@@ -66,6 +112,7 @@ exports.activate = (ctx) => {
     fs.writeFileSync(file, Buffer.from(b64, "base64"));
     item = { id: crypto.randomBytes(5).toString("hex"), type: "shot", file, at: new Date().toISOString(), w, h, size: fs.statSync(file).size, temp: !a.save, how };
     if (a.save) { items.unshift(item); items = items.slice(0, 500); saveList(); }
+    tagGame(item);
     ctx.emit("shot", { ...item, src: url(file) });
     if (a.edit) { lastForEditor = item.id; tmpItems.set(item.id, item); await ctx.host.focus().catch(() => {}); ctx.emit("edit", { ...item, src: url(file) }); }
     else if (a.notify || !copied) ctx.host.notify(copied ? "Print copiado: é só colar (Ctrl+V)" : "Print salvo, mas não deu para copiar", `${w}×${h}${a.save ? " · salvo em " + path.basename(prefs.shotsDir) : ""} · clique para editar`).catch(() => {});
@@ -161,6 +208,7 @@ exports.activate = (ctx) => {
     fs.mkdirSync(prefs.videosDir, { recursive: true });
     const file = freeName(prefs.videosDir, `Gravação ${stamp()}`, "mp4");
     rec = { file, fd: fs.openSync(file, "w"), since: null, paused: false, bytes: 0, opts: r };
+    gameNow().then((g) => { if (rec && rec.file === file) rec.game = g; }).catch(() => {});
     await ctx.host.openWindow("recorder", { file: "web/recorder.html", width: 340, height: 56, frame: false, transparent: true, resizable: false, alwaysOnTop: true, topLevel: "screen-saver",
       skipTaskbar: true, focusable: true, hasShadow: false, contentProtection: true, title: "Gravador · Piphin Captura", fullscreenable: false, maximizable: false, minimizable: false });
     const disp = (await ctx.host.displays()).find((d) => d.underCursor) || (await ctx.host.displays())[0];
@@ -191,7 +239,7 @@ exports.activate = (ctx) => {
     }
     let thumb = null;
     if (info.thumb) { thumb = path.join(ctx.dataDir, "miniaturas", path.basename(r.file, ".mp4") + ".jpg"); fs.mkdirSync(path.dirname(thumb), { recursive: true }); fs.writeFileSync(thumb, Buffer.from(info.thumb)); }
-    const item = { id: crypto.randomBytes(5).toString("hex"), type: "video", file: r.file, at: new Date().toISOString(), w: info.w, h: info.h, seconds: info.seconds, size, thumb };
+    const item = { id: crypto.randomBytes(5).toString("hex"), type: "video", file: r.file, at: new Date().toISOString(), w: info.w, h: info.h, seconds: info.seconds, size, thumb, game: r.game || undefined };
     items.unshift(item); saveList();
     ctx.emit("rec", { on: false, last: { ...item, src: url(item.file) } });
     ctx.host.notify("Gravação salva", `${Math.floor((info.seconds || 0) / 60)}:${String(Math.round((info.seconds || 0) % 60)).padStart(2, "0")} · ${(size / 1048576).toFixed(0)} MB · clique para ver`).catch(() => {});
@@ -234,6 +282,7 @@ exports.activate = (ctx) => {
     if (k) Promise.resolve(ACTIONS[k]()).catch((e) => { busy = false; ctx.log(k, e.message); ctx.host.notify("Piphin Captura", e.message).catch(() => {}); });
   });
   bindHotkeys().catch((e) => ctx.log("atalhos", e.message));
+  syncHub();
 
   // ---------------------------------------------------------------- ferramentas para a IA
   ctx.handle("tool:take_screenshot", async () => {

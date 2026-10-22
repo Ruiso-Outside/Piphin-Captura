@@ -88,7 +88,7 @@ function card(it) {
   const v = it.type === "video";
   return `<div class="card-c" data-open="${esc(it.id)}"><div class="thumb">${it.thumbSrc ? `<img src="${esc(it.thumbSrc)}" alt="" loading="lazy">` : `<i class="i i-${v ? "film" : "image"}"></i>`}
     ${v ? `<span class="badge-t"><i class="i i-play"></i>${dur(it.seconds)}</span>` : ""}</div>
-    <div class="meta"><b>${v ? "Gravação" : "Print"}</b><span>${when(it.at)} · ${it.w && it.h ? `${it.w}×${it.h} · ` : ""}${mb(it.size)}</span></div>
+    <div class="meta"><b>${it.game ? esc(it.game) : v ? "Gravação" : "Print"}</b><span>${it.game ? (v ? "Gravação · " : "Print · ") : ""}${when(it.at)} · ${it.w && it.h ? `${it.w}×${it.h} · ` : ""}${mb(it.size)}</span></div>
     <button class="btn icon ghost xs more" data-more="${esc(it.id)}" title="Mais"><i class="i i-chevron-down"></i></button></div>`;
 }
 function gallery() {
@@ -168,9 +168,11 @@ function moreMenu(it) {
   openModal(`<h3>${v ? "Gravação" : "Print"} · ${esc(when(it.at))}</h3><div class="menu-list">
     ${v ? "" : `<button data-m="edit"><i class="i i-pencil"></i>Editar</button><button data-m="copy"><i class="i i-copy"></i>Copiar</button>`}
     ${v ? `<button data-m="play"><i class="i i-play"></i>Assistir</button>` : ""}
+    ${(S.openers[v ? "video" : "image"] || []).map((o) => `<button data-open-in="${esc(o.id)}"><i class="i i-${v ? "film" : "image"}"></i>Editar no ${esc(o.name)}</button>`).join("")}
     <button data-m="show"><i class="i i-folder-open"></i>Mostrar na pasta</button><button data-m="saveas"><i class="i i-download"></i>Salvar como</button>
     <button data-m="del" class="danger"><i class="i i-trash-2"></i>Apagar</button></div><div class="modal-actions"><button class="btn" data-n>Fechar</button></div>`);
   box.querySelector("[data-n]").onclick = closeModal;
+  $$("[data-open-in]", box).forEach((b) => (b.onclick = guard(async () => { closeModal(); await call("open-in", b.dataset.openIn, it.id); })));
   $$("[data-m]", box).forEach((b) => (b.onclick = guard(async () => {
     closeModal();
     const m = b.dataset.m;
@@ -237,10 +239,18 @@ $("#content").addEventListener("click", guard(async (e) => {
   }
 }));
 
+// módulos que abrem prints e gravações (Mídia do Hub 1.7.0+): "Editar no Piphin Foto", "Editar no Piphin Vídeo"
+S.openers = { image: [], video: [] };
+async function loadOpeners() {
+  for (const k of ["image", "video"]) S.openers[k] = await call("openers", k).catch(() => []);
+}
+document.addEventListener("visibilitychange", () => { if (!document.hidden) loadOpeners(); });
+
 // ---------------------------------------------------------------- início
 (async () => {
   const st = await call("state");
   Object.assign(S, { items: st.items, prefs: st.prefs, rec: st.rec, hotkeysOk: st.hotkeysOk, displays: st.displays });
   if (S.prefs.rec.mic) listMics().then(render).catch(() => {});
+  loadOpeners();
   refreshRec(); render();
 })().catch((e) => { $("#content").innerHTML = `<div class="empty-box"><i class="i i-triangle-alert"></i><b>Não deu para abrir</b><span>${esc(e.message)}</span></div>`; });
