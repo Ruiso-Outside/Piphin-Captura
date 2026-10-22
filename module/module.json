@@ -1,0 +1,46 @@
+{
+  "id": "captura",
+  "name": "Piphin Captura",
+  "version": "0.0.0",
+  "description": "Print de tela prático (área, tela inteira ou janela) com editor para marcar e esconder informações, e gravador de tela em MP4 com o som do PC e o microfone.",
+  "main": "backend.js",
+  "ui": "web/index.html",
+  "icon": "icons/captura.png",
+  "accent": "#06b6d4",
+  "minHub": "1.6.0",
+  "permissions": ["screenCapture"],
+  "tools": [
+    {
+      "name": "take_screenshot",
+      "title": "Tirar um print",
+      "readOnly": true,
+      "description": "Tira um print da tela (o monitor onde está o mouse), salva na pasta de prints e copia para a área de transferência, conforme os ajustes do Piphin Captura. Devolve o caminho do arquivo.",
+      "input": { "type": "object", "properties": {} }
+    },
+    {
+      "name": "start_recording",
+      "title": "Começar a gravar a tela",
+      "description": "Começa a gravar a tela em MP4. A pessoa confirma numa janela antes. Para parar: stop_recording, o atalho ou o botão na barrinha.",
+      "input": {
+        "type": "object",
+        "properties": {
+          "system_audio": { "type": "boolean", "description": "Gravar o som do PC (padrão: sim)" },
+          "microphone": { "type": "boolean", "description": "Gravar o microfone (padrão: não)" }
+        }
+      }
+    },
+    {
+      "name": "stop_recording",
+      "title": "Parar a gravação",
+      "description": "Para a gravação de tela em andamento e devolve o arquivo salvo.",
+      "input": { "type": "object", "properties": {} }
+    },
+    {
+      "name": "list_captures",
+      "title": "Ver prints e gravações",
+      "readOnly": true,
+      "description": "Lista os prints e gravações mais recentes do Piphin Captura (arquivo, data, tamanho), as pastas e os atalhos.",
+      "input": { "type": "object", "properties": {} }
+    }
+  ]
+}

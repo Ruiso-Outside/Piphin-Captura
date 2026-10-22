@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' blob: data:; media-src 'self' blob: mediastream:; style-src 'self' 'unsafe-inline'; script-src 'self'; worker-src 'self' blob:">
+  <title>Gravador · Piphin Captura</title>
+  <link rel="stylesheet" href="icons.css">
+  <style>
+    html, body { margin: 0; height: 100%; background: transparent; overflow: hidden; user-select: none; font: 600 13px "Segoe UI", system-ui, sans-serif; color: #f1f5f9; }
+    .bar { position: absolute; inset: 4px; display: flex; align-items: center; gap: 6px; padding: 0 6px 0 4px; border-radius: 14px; background: rgba(12, 14, 20, .92); border: 1px solid rgba(255, 255, 255, .12); box-shadow: 0 8px 24px rgba(0, 0, 0, .45); }
+    .grip { -webkit-app-region: drag; width: 18px; height: 36px; display: grid; place-items: center; color: #64748b; cursor: move; }
+    .dot { width: 10px; height: 10px; border-radius: 50%; background: #ef4444; box-shadow: 0 0 10px #ef4444; animation: blink 1.2s infinite; flex: none; }
+    .paused .dot { animation: none; background: #f59e0b; box-shadow: none; }
+    @keyframes blink { 50% { opacity: .35; } }
+    #time { font-variant-numeric: tabular-nums; min-width: 54px; font-size: 15px; }
+    #msg { flex: 1; min-width: 0; color: #94a3b8; font-weight: 500; font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    button { -webkit-app-region: no-drag; height: 34px; min-width: 34px; border: 0; border-radius: 10px; background: rgba(255, 255, 255, .08); color: #f1f5f9; display: grid; place-items: center; cursor: pointer; font: inherit; padding: 0 10px; }
+    button:hover { background: rgba(255, 255, 255, .16); }
+    #stop { background: #dc2626; display: flex; gap: 6px; align-items: center; }
+    #stop:hover { background: #ef4444; }
+    .i { font-size: 15px; }
+    .src { display: flex; gap: 4px; color: #64748b; }
+    .src .on { color: #22d3ee; }
+    .count { position: absolute; inset: 4px; display: none; place-items: center; border-radius: 14px; background: rgba(12, 14, 20, .95); font-size: 22px; font-weight: 800; color: #22d3ee; }
+    .counting .count { display: grid; }
+  </style>
+</head>
+<body>
+  <div class="bar" id="bar">
+    <span class="grip" title="Arrastar"><i class="i i-grip-horizontal"></i></span>
+    <span class="dot"></span><span id="time">0:00</span>
+    <span class="src"><i class="i i-volume-2" id="sSys" title="Som do PC"></i><i class="i i-mic" id="sMic" title="Microfone"></i></span>
+    <span id="msg">Preparando...</span>
+    <button id="pause" title="Pausar"><i class="i i-pause"></i></button>
+    <button id="stop" title="Parar e salvar"><i class="i i-square"></i>Parar</button>
+  </div>
+  <div class="count" id="count">3</div>
+  <script src="vendor/mediabunny.min.js"></script>
+  <script src="js/recorder.js"></script>
+</body>
+</html>
