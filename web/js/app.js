@@ -66,7 +66,7 @@ function home() {
       <button class="act" data-do="window"><span class="ic"><i class="i i-app-window"></i></span><b>Print de uma janela</b><span>Escolha o programa</span><kbd class="dim">pela lista</kbd></button>
       <button class="act rec ${S.rec.on ? "on" : ""}" data-do="record"><span class="ic"><i class="i i-${S.rec.on ? "square" : "video"}"></i></span><b>${S.rec.on ? "Parar a gravação" : "Gravar a tela"}</b><span>${S.rec.on ? "Salva em MP4" : "Vídeo MP4 com som"}</span>${k("record")}</button>
     </section>
-    <p class="tip"><i class="i i-keyboard"></i>Os atalhos funcionam de qualquer lugar, até dentro de jogos. O print já vai copiado: é só colar com <kbd>Ctrl</kbd>+<kbd>V</kbd>${S.prefs.afterShot.save ? " (e fica salvo na Galeria)" : ""}.</p>
+    <p class="tip"><i class="i i-keyboard"></i>Os atalhos funcionam de qualquer lugar, até dentro de jogos. O print já vai copiado: é só colar com <kbd>Ctrl</kbd>+<kbd>V</kbd>.${S.prefs.afterShot.save ? " <span>Ele também fica salvo na Galeria.</span>" : ""}</p>
     <section class="panel">
       <div class="ph"><h3><i class="i i-video"></i> Gravação</h3><span class="faint">MP4 (H.264), usa a placa de vídeo para não pesar</span></div>
       <div class="opts">
