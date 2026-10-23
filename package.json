@@ -1,7 +1,7 @@
 {
   "name": "piphin-captura",
   "productName": "Piphin Captura",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "Piphin Captura: print de tela com editor e gravador de tela com som; módulo do Piphin Hub",
   "author": "Piphin Studio",
   "private": true,
