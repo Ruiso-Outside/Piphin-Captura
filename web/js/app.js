@@ -104,7 +104,8 @@ function settings() {
   const sw = (k, l, d) => `<div class="set"><div><h4>${l}</h4><p>${d}</p></div><label class="switch"><input type="checkbox" data-after="${k}" ${p.afterShot[k] ? "checked" : ""}><span></span></label></div>`;
   return `<div class="wrap narrow"><h2>Ajustes</h2>
     <h3 class="sub">Atalhos</h3><div class="p-settings">${hk("region", "Print de uma área")}${hk("screen", "Print da tela inteira")}${hk("record", "Começar / parar a gravação")}</div>
-    <p class="faint">Clique no atalho e aperte as teclas novas. Se o <kbd>PrtSc</kbd> abrir a Ferramenta de Captura do Windows, desligue em Configurações do Windows › Acessibilidade › Teclado › “Usar a tecla Print Screen para abrir a captura de tela”.</p>
+    ${/Linux/.test(navigator.userAgent) ? `<p class="faint">Clique no atalho e aperte as teclas novas. No Linux o <kbd>PrtSc</kbd> costuma ser do print do sistema: troque o atalho de lá em Configurações › Teclado › Atalhos, ou escolha outro aqui. Os atalhos funcionam na sessão Xorg (na tela de login, ícone de engrenagem).</p>`
+      : `<p class="faint">Clique no atalho e aperte as teclas novas. Se o <kbd>PrtSc</kbd> abrir a Ferramenta de Captura do Windows, desligue em Configurações do Windows › Acessibilidade › Teclado › “Usar a tecla Print Screen para abrir a captura de tela”.</p>`}
     <h3 class="sub">Depois do print</h3><p class="faint">O print sempre vai copiado, pronto para colar com Ctrl+V no WhatsApp, Discord, Word...</p><div class="p-settings">${sw("save", "Salvar na pasta", "Fica na Galeria e na pasta dos prints")}${sw("edit", "Abrir o editor", "Para marcar com setas, texto e esconder informações")}${sw("notify", "Avisar", "Uma notificação curta do Windows")}</div>
     <h3 class="sub">Pastas</h3><div class="p-settings">
       <div class="set"><div><h4>Prints</h4><p class="path">${esc(p.shotsDir)}</p></div><button class="btn sm" data-do="choose-shot">Mudar</button></div>

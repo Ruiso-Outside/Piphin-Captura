@@ -24,13 +24,26 @@ async function start(o) {
     }
     msg("Iniciando...");
     // a tela (o Hub entrega o monitor/janela escolhido; com som do PC se pedido)
-    const display = await navigator.mediaDevices.getDisplayMedia({ video: { frameRate: o.fps || 60 }, audio: !!o.systemAudio });
+    // no Linux o som do PC não vem junto com a tela: grava a saída de som pelo "Monitor" do PipeWire/PulseAudio
+    const LINUX = /Linux/.test(navigator.userAgent);
+    const display = await navigator.mediaDevices.getDisplayMedia({ video: { frameRate: o.fps || 60 }, audio: !!o.systemAudio && !LINUX });
     R.tracks.push(...display.getTracks());
     const video = display.getVideoTracks()[0];
     if (o.height) await video.applyConstraints({ height: { max: o.height }, frameRate: o.fps || 60 }).catch(() => {});
     video.addEventListener("ended", () => stop()); // a janela gravada fechou
     // som: do PC e/ou microfone, misturados numa trilha só
     const audioIns = [...display.getAudioTracks()];
+    if (o.systemAudio && LINUX) {
+      try {
+        // os nomes dos aparelhos só aparecem depois de uma permissão de áudio
+        let devs = await navigator.mediaDevices.enumerateDevices();
+        if (!devs.some((d) => d.kind === "audioinput" && d.label)) { (await navigator.mediaDevices.getUserMedia({ audio: true })).getTracks().forEach((t) => t.stop()); devs = await navigator.mediaDevices.enumerateDevices(); }
+        const mon = devs.find((d) => d.kind === "audioinput" && /^monitor/i.test(d.label));
+        if (!mon) throw new Error("sem monitor");
+        const sys = await navigator.mediaDevices.getUserMedia({ audio: { deviceId: { exact: mon.deviceId }, echoCancellation: false, noiseSuppression: false, autoGainControl: false } });
+        R.tracks.push(...sys.getTracks()); audioIns.push(...sys.getAudioTracks());
+      } catch { msg("Sem o som do PC (saída de som não encontrada)"); }
+    }
     if (o.mic) {
       try { const mic = await navigator.mediaDevices.getUserMedia({ audio: { deviceId: o.micId || undefined, echoCancellation: true, noiseSuppression: true } }); R.tracks.push(...mic.getTracks()); audioIns.push(...mic.getAudioTracks()); }
       catch { msg("Sem acesso ao microfone"); }
