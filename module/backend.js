@@ -6,13 +6,28 @@
 const fs = require("fs");
 const os = require("os");
 const path = require("path");
+
+// Pastas do usuário: no Linux seguem o idioma do sistema (~/Imagens, ~/Músicas...) pelo user-dirs.dirs.
+// Se a pasta em inglês já existe (sistema em inglês ou dados de antes), continua nela.
+function userDir(name) { // "Pictures" | "Videos" | "Music" | "Documents" | "Downloads" | "Desktop"
+  const home = os.homedir(), en = path.join(home, name);
+  if (process.platform !== "linux" || fs.existsSync(en)) return en;
+  const key = { Pictures: "PICTURES", Videos: "VIDEOS", Music: "MUSIC", Documents: "DOCUMENTS", Downloads: "DOWNLOAD", Desktop: "DESKTOP" }[name];
+  try {
+    const cfg = fs.readFileSync(path.join(process.env.XDG_CONFIG_HOME || path.join(home, ".config"), "user-dirs.dirs"), "utf8");
+    const m = new RegExp(`^XDG_${key}_DIR="(.+)"`, "m").exec(cfg);
+    const d = m && m[1].replace(/^\$HOME/, home);
+    if (d && path.isAbsolute(d) && d !== home) return d;
+  } catch { /* sem user-dirs.dirs */ }
+  return en;
+}
 const http = require("http");
 const crypto = require("crypto");
 
 const MIME = { png: "image/png", jpg: "image/jpeg", mp4: "video/mp4", webm: "video/webm" };
 const DEFAULTS = {
-  shotsDir: path.join(os.homedir(), "Pictures", "Piphin Capturas"),
-  videosDir: path.join(os.homedir(), "Videos", "Piphin Capturas"),
+  shotsDir: path.join(userDir("Pictures"), "Piphin Capturas"),
+  videosDir: path.join(userDir("Videos"), "Piphin Capturas"),
   hotkeys: { region: "PrintScreen", screen: "Ctrl+PrintScreen", record: "Alt+F9" },
   afterShot: { save: true, notify: true, edit: false }, // o print sempre é copiado (para colar na hora com Ctrl+V)
   rec: { source: "screen", sourceId: "", systemAudio: true, mic: false, micId: "", fps: 60, quality: "high", height: 0, countdown: true },
@@ -178,7 +193,7 @@ exports.activate = (ctx) => {
   ctx.handle("save-as", async (id) => {
     const it = items.find((x) => x.id === id) || tmpItems.get(id); if (!it) return null;
     const ext = path.extname(it.file).slice(1);
-    const f = await ctx.host.saveDialog({ title: "Salvar como", defaultPath: path.join(os.homedir(), "Desktop", path.basename(it.file)), filters: [{ name: ext.toUpperCase(), extensions: [ext] }] });
+    const f = await ctx.host.saveDialog({ title: "Salvar como", defaultPath: path.join(userDir("Desktop"), path.basename(it.file)), filters: [{ name: ext.toUpperCase(), extensions: [ext] }] });
     if (!f) return null; fs.copyFileSync(it.file, f); return f;
   });
   ctx.handle("copy-image", async (id) => { const it = items.find((x) => x.id === id) || tmpItems.get(id); if (!it) throw new Error("Print não encontrado"); await ctx.host.writeClipboardImage(fs.readFileSync(it.file).toString("base64")); return true; });
