@@ -3,14 +3,14 @@
 <head>
   <meta charset="utf-8">
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' blob: data: http://127.0.0.1:*; style-src 'self' 'unsafe-inline'; script-src 'self'">
-  <title>Piphin Captura</title>
+  <title>Arasaka Scanner</title>
   <style>
-    html, body { margin: 0; height: 100%; overflow: hidden; background: #000; cursor: crosshair; user-select: none; font: 600 12px "Segoe UI", system-ui, sans-serif; }
+    html, body { margin: 0; height: 100%; overflow: hidden; background: #000000; cursor: crosshair; user-select: none; font: 600 12px "Segoe UI", system-ui, sans-serif; }
     #shot { position: fixed; inset: 0; width: 100vw; height: 100vh; display: block; pointer-events: none; }
     .dim { position: fixed; background: rgba(0, 0, 0, .45); pointer-events: none; }
     #sel { position: fixed; border: 1.5px solid #22d3ee; box-shadow: 0 0 0 1px rgba(0, 0, 0, .4), 0 0 18px rgba(34, 211, 238, .35); pointer-events: none; display: none; }
-    #size { position: fixed; padding: 3px 8px; border-radius: 6px; background: rgba(8, 10, 16, .85); color: #e0f2fe; pointer-events: none; display: none; white-space: nowrap; }
-    #hint { position: fixed; left: 50%; top: 18px; transform: translateX(-50%); padding: 8px 14px; border-radius: 99px; background: rgba(8, 10, 16, .82); color: #e2e8f0; pointer-events: none; font-weight: 500; }
+    #size { position: fixed; padding: 3px 8px; border-radius: 2px; background: rgba(12, 12, 12, .85); color: #fee0e0; pointer-events: none; display: none; white-space: nowrap; }
+    #hint { position: fixed; left: 50%; top: 18px; transform: translateX(-50%); padding: 8px 14px; border-radius: 2px; background: rgba(12, 12, 12, .82); color: #fcd6d6; pointer-events: none; font-weight: 500; }
     #hint b { color: #22d3ee; }
     .cross { position: fixed; background: rgba(34, 211, 238, .5); pointer-events: none; }
   </style>

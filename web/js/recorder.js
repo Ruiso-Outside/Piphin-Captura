@@ -110,7 +110,7 @@ async function stop(err) {
   const r = R; r.finishing = true;
   msg(err ? "Erro" : "Salvando...");
   const seconds = elapsed();
-  let error = err ? (err.name === "NotAllowedError" ? "A captura da tela foi negada (o Hub precisa ser o 1.6.0 ou mais novo)" : err.message || String(err)) : null;
+  let error = err ? (err.name === "NotAllowedError" ? "A captura da tela foi negada (a Central precisa ser o 1.6.0 ou mais novo)" : err.message || String(err)) : null;
   try { if (r.output && !error) await r.output.finalize(); else if (r.output) await r.output.cancel().catch(() => {}); }
   catch (e) { error = error || e.message; }
   for (const t of r.tracks) t.stop();

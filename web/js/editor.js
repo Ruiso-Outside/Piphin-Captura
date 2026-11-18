@@ -6,7 +6,7 @@ const Editor = (() => {
   const TOOLS = [["move", "mouse-pointer-2", "Mover / apagar marcação (V)"], ["arrow", "move-up-right", "Seta (A)"], ["rect", "square-dashed", "Retângulo (R)"], ["pen", "pen-line", "Caneta (P)"],
     ["mark", "highlighter", "Marca-texto (M)"], ["text", "type", "Texto (T)"], ["step", "hash", "Números (N)"], ["blur", "eye-off", "Esconder (desfoque) (B)"], ["crop", "crop", "Cortar (C)"]];
   const KEYS = { v: "move", a: "arrow", r: "rect", p: "pen", m: "mark", t: "text", n: "step", b: "blur", c: "crop" };
-  const COLORS = ["#ef4444", "#f59e0b", "#22c55e", "#22d3ee", "#a855f7", "#ffffff", "#111111"];
+  const COLORS = ["#ef4444", "#f59e0b", "#22c55e", "#22d3ee", "#ff2a2a", "#ffffff", "#111111"];
   const SIZES = [[2, "Fino"], [4, "Médio"], [8, "Grosso"]];
   const cv = $("#cv"), g = cv.getContext("2d"), stage = $("#stage"), ti = $("#textIn");
   let img = null, item = null, marks = [], redo = [], tool = "arrow", color = COLORS[0], size = 4, crop = null;

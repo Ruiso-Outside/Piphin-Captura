@@ -150,7 +150,7 @@ exports.activate = (ctx) => {
       fs.writeFileSync(file, Buffer.from(b64, "base64"));
       region = { file, disp };
       await ctx.host.openWindow("selector", { file: "web/selector.html", frame: false, transparent: false, resizable: false, alwaysOnTop: true, topLevel: "screen-saver", skipTaskbar: true,
-        fullscreenable: false, maximizable: false, minimizable: false, hasShadow: false, backgroundColor: "#000000", title: "Piphin Captura", x: disp.bounds.x, y: disp.bounds.y, width: disp.bounds.width, height: disp.bounds.height });
+        fullscreenable: false, maximizable: false, minimizable: false, hasShadow: false, backgroundColor: "#000000", title: "Arasaka Scanner", x: disp.bounds.x, y: disp.bounds.y, width: disp.bounds.width, height: disp.bounds.height });
       await ctx.host.setWindowBounds("selector", disp.bounds);
       ctx.host.sendToWindow("selector", "start", { src: url(file), scale: disp.scaleFactor, w: Math.round(disp.bounds.width * disp.scaleFactor), h: Math.round(disp.bounds.height * disp.scaleFactor) }).catch(() => {});
       await ctx.host.showWindow("selector", { focus: true });
@@ -210,7 +210,7 @@ exports.activate = (ctx) => {
     rec = { file, fd: fs.openSync(file, "w"), since: null, paused: false, bytes: 0, opts: r };
     gameNow().then((g) => { if (rec && rec.file === file) rec.game = g; }).catch(() => {});
     await ctx.host.openWindow("recorder", { file: "web/recorder.html", width: 340, height: 56, frame: false, transparent: true, resizable: false, alwaysOnTop: true, topLevel: "screen-saver",
-      skipTaskbar: true, focusable: true, hasShadow: false, contentProtection: true, title: "Gravador · Piphin Captura", fullscreenable: false, maximizable: false, minimizable: false });
+      skipTaskbar: true, focusable: true, hasShadow: false, contentProtection: true, title: "Gravador · Arasaka Scanner", fullscreenable: false, maximizable: false, minimizable: false });
     const disp = (await ctx.host.displays()).find((d) => d.underCursor) || (await ctx.host.displays())[0];
     await ctx.host.setWindowBounds("recorder", { x: Math.round(disp.workArea.x + disp.workArea.width / 2 - 170), y: disp.workArea.y + 12, width: 340, height: 56 });
     ctx.host.sendToWindow("recorder", "start", { ...r }).catch(() => {});
@@ -279,7 +279,7 @@ exports.activate = (ctx) => {
   }
   ctx.host.on("hotkey", (acc) => {
     const k = Object.keys(prefs.hotkeys).find((x) => prefs.hotkeys[x] === acc);
-    if (k) Promise.resolve(ACTIONS[k]()).catch((e) => { busy = false; ctx.log(k, e.message); ctx.host.notify("Piphin Captura", e.message).catch(() => {}); });
+    if (k) Promise.resolve(ACTIONS[k]()).catch((e) => { busy = false; ctx.log(k, e.message); ctx.host.notify("Arasaka Scanner", e.message).catch(() => {}); });
   });
   bindHotkeys().catch((e) => ctx.log("atalhos", e.message));
   syncHub();
