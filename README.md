@@ -1,6 +1,8 @@
-# Piphin Captura
+# Arasaka Scanner
 
-Print de tela prático, com editor, e gravador de tela em MP4 com som. Módulo do [Piphin Hub](https://github.com/Ruiso-Outside/Piphin-Hub) (precisa do Hub 1.6.0; cerca de 300 KB).
+> Antes chamado **Piphin Captura**. Os arquivos, pastas e dados continuam com o nome antigo.
+
+Print de tela prático, com editor, e gravador de tela em MP4 com som. Módulo do [Arasaka Central](https://github.com/Ruiso-Outside/ArasakaCentral) (precisa do Hub 1.6.0; cerca de 300 KB).
 
 ## Print
 
@@ -26,12 +28,12 @@ Print de tela prático, com editor, e gravador de tela em MP4 com som. Módulo d
 ## Galeria e IA
 
 - **Galeria**: prints e gravações, para editar, assistir, copiar, mostrar na pasta, salvar como e apagar.
-- **IA**: com o Piphin LLM, a IA tira um print, começa e para a gravação (com a sua confirmação) e lista as capturas.
+- **IA**: com o Arasaka Mikoshi, a IA tira um print, começa e para a gravação (com a sua confirmação) e lista as capturas.
 
 ## Mídia do Hub
-Com o Piphin Hub 1.7.0 ou mais novo:
-- Prints e gravações entram na **Mídia** do Hub. Se um jogo estiver aberto (pelo Piphin Jogos), levam o nome dele, e o Piphin Jogos mostra os prints e gravações na página do jogo.
-- No menu de cada captura: **Editar no Piphin Foto** (prints) e **Editar no Piphin Vídeo** (gravações).
+Com a Arasaka Central 1.7.0 ou mais novo:
+- Prints e gravações entram na **Mídia** do Hub. Se um jogo estiver aberto (pelo Arasaka Arcade), levam o nome dele, e o Arasaka Arcade mostra os prints e gravações na página do jogo.
+- No menu de cada captura: **Editar no Arasaka Optics** (prints) e **Editar no Arasaka Braindance** (gravações).
 
 ## Estrutura
 
